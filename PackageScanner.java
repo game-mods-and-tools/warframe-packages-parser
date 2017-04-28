@@ -46,16 +46,17 @@ class ObjectThing {
             indent += " ";
         }
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry < String, Object > entry: info.entrySet()) {
+        for (Map.Entry <String, Object> entry: info.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
-            sb.append(indent + "ENTRY: " + key);
-            sb.append("\t");
+            sb.append(indent + "\"" + key + "\"");
+            sb.append(":");
             if (value instanceof ObjectThing) {
-                sb.append("\n");
+                sb.append("{\n");
                 sb.append(((ObjectThing) value).toString(spaces + 2));
-            } else sb.append(value.toString());
-            sb.append("\n");
+				sb.append(indent + "}");
+            } else sb.append("\"" + value.toString().replace("\"", "\\\"") + "\"");
+            sb.append(",\n");
         }
         return sb.toString();
     }
@@ -107,9 +108,8 @@ public class PackageScanner {
                     // key value or make key its own value
                     if (!key.equals("") || !value.equals("")) {
                         if (s == 0x2C) key = current.newKey();
-                        else if (key.equals("") && value instanceof String) key = (String) value;
                         else if (key.equals("")) key = current.newKey();
-                        System.out.printf("[%d] Insert1:\t%s\t%s\n", depth, key, value instanceof ObjectThing ? "OBJTHING" : value);
+                        // System.out.printf("[%d] Insert1:\t%s\t%s\n", depth, key, value instanceof ObjectThing ? "OBJTHING" : value);
                         current.insert(key, value);
                     }
                     if (s == 0x7B) {
