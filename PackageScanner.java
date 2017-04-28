@@ -9,38 +9,49 @@ import java.util.Map;
 import java.util.Iterator;
 
 class ObjectThing {
+    // hashtable to store key value things
     private Hashtable < String, Object > info = new Hashtable < String, Object > ();
+    // because these objects can be nested
     private ObjectThing parent;
+    // for handling unnamed things
     private int unnamedVals = 0;
 
+    // the root so to speak
     public ObjectThing() {
         this.parent = null;
     }
 
+    // if you make a nested one
     public ObjectThing(ObjectThing parent) {
         this.parent = parent;
     }
 
+    // to go up the nesting
     public ObjectThing getParent() {
         return parent;
     }
 
+    // insert into table
     public void insert(String s, Object obj) {
         info.put(s, obj);
     }
 
+    // get a new key for an unnamed thing
     public String newKey() {
         return Integer.toString(unnamedVals++);
     }
 
+    // see if you used any unneeded keys
     public int getKey() {
         return unnamedVals;
     }
 
+    // tostring method wrapper
     public String toString() {
-        return "{\n" + toString(4) + "\n}";
+        return "{\n" + toString(4) + "\n}"; // outer wrap
     }
 
+    // actual work
     private String toString(int spaces) {
         String indent = "";
         for (int i = 0; i < spaces; i++) {
@@ -52,23 +63,16 @@ class ObjectThing {
             Map.Entry < String, Object > entry = it.next();
             String key = entry.getKey();
             Object value = entry.getValue();
-            sb.append(indent + "\"" + key.replace("\"", "\\\"") + "\"");
-            sb.append(":");
+            sb.append(indent + "\"" + key.replace("\"", "\\\"") + "\": "); // escape keys just in case
             if (value instanceof ObjectThing) {
-                sb.append("{\n");
-                sb.append(((ObjectThing) value).toString(spaces + 4));
-                sb.append(indent + "}");
+                sb.append("{\n" + ((ObjectThing) value).toString(spaces + 4) + indent + "}"); // object will be on new line and indented
             } else {
-                String sValue = (String) value.toString();
-                if (sValue.matches("-?\\d+(\\.\\d+)?")) {
-                    sb.append(Double.valueOf(sValue));
-                } else {
-                    sb.append("\"" + sValue.replace("\"", "\\\"") + "\"");
-                }
+                String sValue = value.toString(); // could reuse key here tbh
+                if (sValue.matches("-?\\d+(\\.\\d+)?")) sb.append(Double.valueOf(sValue)); // keep numbers numbers
+                else sb.append("\"" + sValue.replace("\"", "\\\"") + "\""); // else string
             }
-            if (it.hasNext())
-                sb.append(",");
-			sb.append("\n");
+            if (it.hasNext()) sb.append(",");
+            sb.append("\n"); // always need a nice new line
         }
         return sb.toString();
     }
@@ -79,19 +83,20 @@ public class PackageScanner {
     private BufferedReader file;
     private ObjectThing rootObject = new ObjectThing();
 
+    // load file and parse asap
     public PackageScanner(String filename) throws FileNotFoundException, IOException {
         file = new BufferedReader(new FileReader(new File(filename)));
-        Parse();
+        Parse(); // hmm
     }
 
-    public String Parse() throws IOException {
-        int s;
-        ObjectThing current = rootObject;
+    public void Parse() throws IOException {
+        int s; // character being read
+        ObjectThing current = rootObject; // the table we're inserting into
 
-        StringBuilder sb = new StringBuilder();
-        String key = "";
-        Object value = null;
-        int depth = 0;
+        StringBuilder sb = new StringBuilder(); // a stringbuilder for mutable junk
+        String key = ""; // the key
+        Object value = null; // the value
+        // int depth = 0; // how deep we are (not necessary really)
         while ((s = file.read()) != -1) {
             switch (s) {
                 case 0x3D: // equals, so we can get the key from what we already read
@@ -108,7 +113,7 @@ public class PackageScanner {
                     key = "";
                     value = null;
                     sb.setLength(0);
-                    depth--;
+                    // depth--;
                     current = current.getParent();
                     break;
                 case 0x7B: // open bracket, this counts as the start and end of a value because it will be an object
@@ -126,7 +131,7 @@ public class PackageScanner {
                     }
                     if (s == 0x7B) {
                         current = (ObjectThing) value;
-                        depth++;
+                        // depth++;
                     }
                     key = "";
                     value = null;
@@ -139,9 +144,9 @@ public class PackageScanner {
             }
 
         }
-        return "asd";
     }
 
+    // tostring method
     public String toString() {
         return rootObject.toString();
     }
