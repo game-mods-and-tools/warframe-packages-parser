@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.lang.StringBuilder;
 import java.util.Map;
+import java.util.Iterator;
 
 class ObjectThing {
     private Hashtable < String, Object > info = new Hashtable < String, Object > ();
@@ -37,7 +38,7 @@ class ObjectThing {
     }
 
     public String toString() {
-        return toString(0);
+        return "{\n" + toString(4) + "\n}";
     }
 
     private String toString(int spaces) {
@@ -46,24 +47,28 @@ class ObjectThing {
             indent += " ";
         }
         StringBuilder sb = new StringBuilder();
-        for (Map.Entry <String, Object> entry: info.entrySet()) {
+        Iterator < Map.Entry < String, Object >> it = info.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry < String, Object > entry = it.next();
             String key = entry.getKey();
             Object value = entry.getValue();
-            sb.append(indent + "\"" + key + "\"");
+            sb.append(indent + "\"" + key.replace("\"", "\\\"") + "\"");
             sb.append(":");
             if (value instanceof ObjectThing) {
                 sb.append("{\n");
-                sb.append(((ObjectThing) value).toString(spaces + 2));
-				sb.append(indent + "}");
+                sb.append(((ObjectThing) value).toString(spaces + 4));
+                sb.append(indent + "}");
             } else {
-				String sValue = (String) value.toString();
-				if (sValue.matches("-?\\d+(\\.\\d+)?")) {
-					sb.append(sValue);
-				} else {
-					sb.append("\"" + sValue.replace("\"", "\\\"") + "\"");
-				}
-			}
-            sb.append(",\n");
+                String sValue = (String) value.toString();
+                if (sValue.matches("-?\\d+(\\.\\d+)?")) {
+                    sb.append(Double.valueOf(sValue));
+                } else {
+                    sb.append("\"" + sValue.replace("\"", "\\\"") + "\"");
+                }
+            }
+            if (it.hasNext())
+                sb.append(",");
+			sb.append("\n");
         }
         return sb.toString();
     }
