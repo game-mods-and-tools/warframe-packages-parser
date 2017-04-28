@@ -55,7 +55,14 @@ class ObjectThing {
                 sb.append("{\n");
                 sb.append(((ObjectThing) value).toString(spaces + 2));
 				sb.append(indent + "}");
-            } else sb.append("\"" + value.toString().replace("\"", "\\\"") + "\"");
+            } else {
+				String sValue = (String) value.toString();
+				if (sValue.matches("-?\\d+(\\.\\d+)?")) {
+					sb.append(sValue);
+				} else {
+					sb.append("\"" + sValue.replace("\"", "\\\"") + "\"");
+				}
+			}
             sb.append(",\n");
         }
         return sb.toString();
