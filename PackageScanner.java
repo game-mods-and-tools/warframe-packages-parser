@@ -48,14 +48,14 @@ class ObjectThing {
 
     // tostring method wrapper
     public String toString() {
-        return "{\n" + toString(4) + "\n}"; // outer wrap
+        return "{\n" + toString(1) + "\n}"; // outer wrap
     }
 
     // actual work
     private String toString(int spaces) {
         String indent = "";
         for (int i = 0; i < spaces; i++) {
-            indent += " ";
+            indent += "\t";
         }
         StringBuilder sb = new StringBuilder();
         Iterator < Map.Entry < String, Object >> it = info.entrySet().iterator();
@@ -65,7 +65,7 @@ class ObjectThing {
             Object value = entry.getValue();
             sb.append(indent + "\"" + key.replace("\"", "\\\"") + "\": "); // escape keys just in case
             if (value instanceof ObjectThing) {
-                sb.append("{\n" + ((ObjectThing) value).toString(spaces + 4) + indent + "}"); // object will be on new line and indented
+                sb.append("{\n" + ((ObjectThing) value).toString(spaces + 1) + indent + "}"); // object will be on new line and indented
             } else {
                 String sValue = value.toString(); // could reuse key here tbh
                 if (sValue.matches("-?\\d+(\\.\\d+)?")) sb.append(Double.valueOf(sValue)); // keep numbers numbers
