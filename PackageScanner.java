@@ -15,7 +15,7 @@ class ObjectThing {
     private ObjectThing parent;
     // for handling unnamed things
     private int unnamedVals = 0;
-
+    private int trashyworkaround = 0;
     // the root so to speak
     public ObjectThing() {
         this.parent = null;
@@ -33,7 +33,10 @@ class ObjectThing {
 
     // insert into table
     public void insert(String s, Object obj) {
-        info.put(s, obj);
+        if (!info.containsKey(s))
+            info.put(s, obj);
+        else
+            info.put(s + trashyworkaround++, obj);
     }
 
     // get a new key for an unnamed thing
